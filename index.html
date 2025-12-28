@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>We Build Pools - Custom Concrete Specialists</title>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Alpine JS -->
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.13.3/dist/cdn.min.js"></script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
+
+    <style>
+        [x-cloak] { display: none !important; }
+        .hero-overlay {
+            background: linear-gradient(to right, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.3) 100%);
+        }
+        html { scroll-behavior: smooth; }
+
+        /* Accordion Transition Styles */
+        .accordion-content {
+            transition: max-height 0.3s ease-out, opacity 0.3s ease-out;
+            max-height: 0;
+            opacity: 0;
+            overflow: hidden;
+        }
+        .accordion-expanded {
+            max-height: 500px;
+            opacity: 1;
+        }
+    </style>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#0ea5e9',
+                        secondary: '#0369a1',
+                    },
+                    fontFamily: {
+                        sans: ['Open Sans', 'sans-serif'],
+                        heading: ['Montserrat', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+
+<body class="font-sans antialiased text-gray-800 bg-white"
+      x-data="poolBuilderApp()"
+      x-init="init()"
+      x-cloak>
+
+    <!-- LOADING STATE -->
+    <div x-show="loading" class="fixed inset-0 z-50 flex items-center justify-center bg-white">
+        <div class="text-xl font-bold animate-pulse text-gray-400">Loading Experience...</div>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div x-show="!loading">
+
+        <!-- NAV BAR -->
+        <nav class="bg-white shadow-md fixed w-full z-40 transition-all duration-300">
+            <div class="container mx-auto px-4 md:px-6 py-4 flex justify-between items-center relative">
+                <div class="flex items-center gap-2">
+                     <img :src="style.assets.logo_url.content" alt="Logo" class="h-10 md:h-12 w-auto object-contain">
+                </div>
+
+                <!-- Desktop Nav -->
+                <div class="hidden md:flex items-center space-x-6">
+                    <div class="flex flex-col text-right">
+                        <span class="text-xs text-gray-500 font-bold uppercase tracking-wider">Call for questions</span>
+                        <span class="text-lg font-heading font-bold text-gray-800" x-text="content.contact_info.phone_display.content"></span>
+                    </div>
+                    <button @click="scrollToForm()"
+                            class="bg-primary hover:bg-secondary text-white px-6 py-3 rounded-lg font-bold transition duration-300 shadow-lg"
+                            x-text="getCTA('nav')">
+                    </button>
+                </div>
+
+                <!-- Mobile Hamburger Button -->
+                <button @click="mobileMenuOpen = !mobileMenuOpen" class="md:hidden text-gray-800 focus:outline-none p-2">
+                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                    </svg>
+                </button>
+
+                <!-- Mobile Dropdown Menu -->
+                <div x-show="mobileMenuOpen"
+                     @click.away="mobileMenuOpen = false"
+                     x-transition:enter="transition ease-out duration-200"
+                     x-transition:enter-start="opacity-0 -translate-y-2"
+                     x-transition:enter-end="opacity-100 translate-y-0"
+                     class="absolute top-full left-0 w-full bg-white shadow-xl border-t border-gray-100 md:hidden flex flex-col items-center p-6 space-y-4">
+
+                    <button @click="scrollToForm(); mobileMenuOpen = false"
+                            class="w-full bg-primary hover:bg-secondary text-white px-6 py-4 rounded-lg font-bold transition duration-300 shadow-lg text-lg"
+                            x-text="getCTA('nav')">
+                    </button>
+
+                    <div class="flex flex-col items-center pt-2">
+                        <span class="text-xs text-gray-500 font-bold uppercase tracking-wider">Call for questions</span>
+                        <a :href="'tel:' + content.contact_info.phone_value.content" class="text-xl font-heading font-bold text-gray-800 mt-1" x-text="content.contact_info.phone_display.content"></a>
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+        <!-- HERO SECTION -->
+        <header class="relative h-screen min-h-[600px] flex items-center bg-cover bg-center fixed-bg"
+                :style="`background-image: url('${style.assets.hero_background_url.content || style.assets.recent_projects[2].image_url}')`">
+            <div class="absolute inset-0 hero-overlay"></div>
+
+            <div class="container mx-auto px-4 md:px-6 relative z-10 pt-20">
+                <div class="grid md:grid-cols-2 gap-12 items-center">
+
+                    <!-- Hero Text -->
+                    <div class="text-white space-y-8 animate-fade-in-up">
+                        <span class="text-white font-bold uppercase tracking-widest border-l-4 border-primary pl-3 text-sm"
+                              x-text="content.business_profile.location_focus.content"></span>
+
+                        <h1 class="text-4xl md:text-6xl font-heading font-bold leading-tight drop-shadow-lg"
+                            x-text="content.hero_section.headline.content"></h1>
+
+                        <p class="text-xl md:text-2xl text-gray-100 font-light max-w-lg leading-relaxed"
+                           x-text="content.hero_section.subheadline.content"></p>
+
+                        <!-- LOGIC: Custom Strategy = Button to Scroll -->
+                        <div x-show="content.business_profile.funnel_strategy.content === 'CUSTOM'">
+                            <button @click="scrollToForm()"
+                                    class="mt-4 bg-primary hover:bg-secondary text-white text-lg px-10 py-5 rounded-lg font-bold shadow-2xl transform hover:-translate-y-1 transition duration-300 border-2 border-primary hover:border-secondary w-full md:w-auto">
+                                <span x-text="getCTA('main')"></span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- LOGIC: Volume Strategy = Form in Hero -->
+                    <div x-show="content.business_profile.funnel_strategy.content === 'VOLUME'"
+                         class="bg-white p-6 md:p-8 rounded-xl shadow-2xl transform transition-all duration-500 border-t-4 border-primary">
+                        <div class="text-center mb-6">
+                            <h3 class="text-2xl font-heading font-bold text-gray-900"
+                                x-text="getFormHeadline()"></h3>
+                            <p class="text-gray-500 text-sm mt-2">Fast response • No obligation</p>
+                        </div>
+                        <div x-html="renderForm('hero')"></div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- TRUST BAR -->
+        <section class="bg-gray-50 py-12 border-b border-gray-200">
+            <div class="container mx-auto px-4 md:px-6">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8 text-center divide-y md:divide-y-0 md:divide-x divide-gray-200">
+                    <template x-for="item in content.trust_bar.items">
+                        <div class="flex flex-col items-center space-y-3 px-4 pt-4 md:pt-0">
+                            <div class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary text-xl font-bold">✓</div>
+                            <span class="font-heading font-bold text-gray-800 text-lg" x-text="item.content"></span>
+                        </div>
+                    </template>
+                </div>
+            </div>
+        </section>
+
+        <!-- INTRO & FEATURES -->
+        <section class="py-24">
+            <div class="container mx-auto px-4 md:px-6 text-center max-w-5xl">
+                <h2 class="text-3xl md:text-5xl font-heading font-bold mb-8 text-gray-900 leading-tight">
+                    Why Choose <span class="text-primary underline decoration-4 decoration-primary/20" x-text="content.business_profile.company_name.content"></span>?
+                </h2>
+                <p class="text-xl text-gray-600 leading-relaxed mb-20 max-w-3xl mx-auto" x-text="content.value_proposition_grid.intro_text.content"></p>
+
+                <div class="grid md:grid-cols-3 gap-8 text-left">
+                    <template x-for="feature in content.value_proposition_grid.features">
+                        <div class="bg-white p-8 rounded-2xl border border-gray-100 shadow-lg hover:shadow-xl transition-shadow duration-300 relative overflow-hidden group">
+                            <div class="absolute top-0 left-0 w-2 h-full bg-primary group-hover:w-full transition-all duration-500 opacity-5"></div>
+                            <h3 class="text-xl font-bold text-gray-900 mb-4 relative z-10" x-text="feature.title"></h3>
+                            <p class="text-gray-600 leading-relaxed relative z-10" x-text="feature.description"></p>
+                        </div>
+                    </template>
+                </div>
+            </div>
+        </section>
+
+        <!-- PAIN POINT REMOVER -->
+        <section class="py-24 bg-gray-900 text-white relative overflow-hidden">
+            <div class="container mx-auto px-4 md:px-6 relative z-10 flex flex-col lg:flex-row items-center gap-16">
+                <div class="lg:w-1/2 space-y-6">
+                    <div class="inline-block bg-primary/20 text-primary font-bold px-4 py-1 rounded-full text-sm mb-2">Hassle-Free Process</div>
+                    <h2 class="text-3xl md:text-5xl font-heading font-bold leading-tight" x-text="content.pain_point_remover.headline.content"></h2>
+                    <p class="text-lg text-gray-300 leading-relaxed" x-text="content.pain_point_remover.body_copy.content"></p>
+                </div>
+                <div class="lg:w-1/2 w-full bg-white/5 backdrop-blur-md p-10 rounded-2xl border border-white/10 relative">
+                    <div class="flex text-yellow-400 text-2xl mb-6 tracking-wide">★★★★★</div>
+                    <p class="italic text-xl text-gray-100 mb-8 leading-relaxed">"<span x-text="content.social_proof.review_highlight.content"></span>"</p>
+                    <div class="border-t border-gray-700 pt-6">
+                        <div class="font-bold text-white text-lg">— <span x-text="content.social_proof.review_highlight.author"></span></div>
+                        <div class="text-sm text-primary font-semibold mt-1 flex items-center gap-2">
+                            <span x-text="content.social_proof.google_rating_text.content"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- RECENT PROJECTS SLIDER -->
+        <section x-show="style.assets.recent_projects && style.assets.recent_projects.length > 0" class="py-24 bg-white border-b border-gray-100">
+            <div class="container mx-auto px-4 md:px-6 max-w-5xl">
+                <h2 class="text-3xl font-heading font-bold text-center mb-10 text-gray-900">Recent Projects</h2>
+
+                <div x-data="{ activeSlide: 0, timer: null }"
+                     x-init="timer = setInterval(() => { activeSlide = activeSlide === style.assets.recent_projects.length - 1 ? 0 : activeSlide + 1 }, 4000)"
+                     class="relative w-full">
+
+                    <!-- Container for Height Reservation (Responsive) -->
+                    <div class="relative w-full h-[420px] md:h-[540px]">
+
+                        <template x-for="(project, index) in style.assets.recent_projects" :key="index">
+                            <div x-show="activeSlide === index"
+                                 x-transition:enter="transition ease-out duration-700"
+                                 x-transition:enter-start="opacity-0"
+                                 x-transition:enter-end="opacity-100"
+                                 x-transition:leave="transition ease-in duration-700 absolute"
+                                 x-transition:leave-start="opacity-100"
+                                 x-transition:leave-end="opacity-0"
+                                 class="absolute inset-0 flex flex-col items-center">
+
+                                <!-- Image Container (Responsive Height: Mobile 320px, Desktop 448px) -->
+                                <div class="h-[320px] md:h-[448px] w-full flex items-center justify-center mb-6">
+                                    <img :src="project.image_url" class="max-h-full max-w-full object-contain rounded-2xl shadow-lg">
+                                </div>
+
+                                <p x-show="project.description && project.description.length > 0"
+                                   x-text="project.description"
+                                   class="text-gray-600 font-medium text-lg text-center max-w-2xl animate-fade-in px-4"></p>
+
+                            </div>
+                        </template>
+
+                    </div>
+
+                    <div class="flex justify-center gap-2 mt-4">
+                        <template x-for="(project, index) in style.assets.recent_projects" :key="index">
+                            <button @click="activeSlide = index; clearInterval(timer)"
+                                    class="w-2 h-2 rounded-full transition-all duration-300"
+                                    :class="activeSlide === index ? 'bg-primary w-6' : 'bg-gray-300 hover:bg-gray-400'">
+                            </button>
+                        </template>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+        <!-- BOTTOM FORM SECTION -->
+        <section id="contact-section" class="py-24 bg-gray-50" x-show="content.business_profile.funnel_strategy.content === 'CUSTOM'">
+            <div class="container mx-auto px-4 md:px-6 max-w-3xl bg-white p-8 md:p-12 rounded-3xl shadow-2xl border border-gray-100">
+                <div class="text-center mb-10">
+                    <!-- DYNAMIC HEADLINE LOGIC -->
+                    <h2 class="text-2xl md:text-4xl font-heading font-bold text-gray-900 mt-2"
+                        x-text="getFormHeadline()"></h2>
+                    <p class="text-gray-500 mt-4 text-lg">Enter your details below. We'll be in touch within 24 hours.</p>
+                </div>
+                <div x-html="renderForm('bottom')"></div>
+            </div>
+        </section>
+
+        <!-- FAQ SECTION -->
+        <section class="py-24 bg-white border-t border-gray-200">
+            <div class="container mx-auto px-4 md:px-6 max-w-3xl">
+                <div class="text-center mb-12">
+                    <h2 class="text-3xl font-heading font-bold text-gray-900" x-text="faq.faq_section.section_title"></h2>
+                    <p class="text-gray-500 mt-2">Answers to your common questions</p>
+                </div>
+
+                <div class="space-y-4">
+                    <template x-for="(item, index) in getAllFaqs()" :key="index">
+                        <div class="border border-gray-200 rounded-lg bg-gray-50 overflow-hidden" x-data="{ expanded: false }">
+                            <button @click="expanded = !expanded" class="w-full px-6 py-4 flex justify-between items-center text-left focus:outline-none bg-white hover:bg-gray-50 transition">
+                                <span class="font-bold text-gray-800 text-lg" x-text="item.question"></span>
+                                <span class="text-primary font-bold text-2xl transform transition-transform duration-300"
+                                      :class="{'rotate-45': expanded}">+</span>
+                            </button>
+                            <div class="bg-gray-50 px-6 text-gray-600 leading-relaxed accordion-content"
+                                 :class="{'accordion-expanded py-4': expanded}">
+                                <p x-text="item.answer"></p>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+            </div>
+        </section>
+
+        <!-- FOOTER -->
+        <footer class="bg-gray-900 border-t border-gray-800 text-white py-12">
+            <div class="container mx-auto px-4 md:px-6 text-center space-y-4">
+                <p class="text-gray-400 text-sm">
+                    &copy; <span x-text="new Date().getFullYear()"></span> <span x-text="content.business_profile.company_name.content"></span>. All rights reserved.
+                </p>
+                <div x-show="content.legal_compliance.license_text.content" class="pt-4">
+                    <span class="inline-block border border-gray-700 rounded px-3 py-1 text-xs text-gray-400 font-mono tracking-wide"
+                          x-text="content.legal_compliance.license_text.content"></span>
+                </div>
+            </div>
+        </footer>
+
+    </div>
+
+    <!-- LOGIC ENGINE -->
+    <script>
+        function poolBuilderApp() {
+            return {
+                loading: true,
+                mobileMenuOpen: false,
+                content: {},
+                faq: {},
+                style: {},
+
+                async init() {
+                    // WE BUILD POOLS DATA INJECTION
+                    this.content = {
+                      "business_profile": { "company_name": { "content": "We Build Pools" }, "location_focus": { "content": "Sunshine Coast & South East Queensland" }, "funnel_strategy": { "content": "CUSTOM" } },
+                      "contact_info": { "phone_display": { "content": "0475 050 110" }, "phone_value": { "content": "0475050110" }, "email": { "content": "leads@webuildpoolsqld.com.au" } },
+                      "legal_compliance": { "license_text": { "content": "QBCC Licence #1510 6828" } },
+                      "hero_section": { "headline": { "content": "Transform Your Backyard Into a Luxury Oasis" }, "subheadline": { "content": "Third-generation pool builders crafting custom concrete pools across the Sunshine Coast – backed by 20+ years of family expertise" }, "cta_text": { "content": "IGNORE" } },
+                      "trust_bar": { "items": [ { "content": "Third-Generation Pool Builders" }, { "content": "20+ Years Experience" }, { "content": "Local Family Business" } ] },
+                      "value_proposition_grid": { "intro_text": { "content": "At We Build Pools, we don't just dig holes – we design dream backyards. As a third-generation family business with over 20 years on the Sunshine Coast, we handle every detail from concept to completion." }, "features": [ { "title": "Custom Concrete Specialists", "description": "Every pool is uniquely designed and built to your exact specifications – no templates, no limitations, just your vision brought to life in premium concrete." }, { "title": "Third-Generation Expertise", "description": "With pool building in our DNA for over 20 years, you're working with craftsmen who learned the trade from the ground up – not just contractors." }, { "title": "Start to Finish Service", "description": "From initial design consultation to final handover, we own every step of the process – you deal with one trusted team, not a revolving door of subcontractors." } ] },
+                      "pain_point_remover": { "headline": { "content": "We Handle All the Paperwork & Permits" }, "body_copy": { "content": "Building a pool shouldn't feel like navigating a bureaucratic maze. Our experienced team manages all council approvals, engineering certifications, and permit applications on your behalf. With QBCC Licence #1510 6828 and 20+ years navigating Sunshine Coast regulations, we ensure your project stays compliant and stress-free from day one." } },
+                      "social_proof": { "review_highlight": { "content": "The quality of workmanship and attention to detail was exceptional – our pool is the centerpiece of our home.", "author": "Sunshine Coast Homeowner" }, "google_rating_text": { "content": "Trusted by Sunshine Coast Families" } },
+                      "lead_form_strategy": { "form_header": { "content": "Ready to Start Your Pool Project? Get Your Free On-Site Quote" }, "qualifying_questions": { "ask_budget": { "content": true }, "ask_access": { "content": true }, "ask_timeline": { "content": true } } }
+                    };
+
+                    this.faq = {
+                      "faq_section": {
+                        "section_title": "Frequently Asked Questions",
+                        "universal_questions": [
+                          { "question": "Do you handle council approvals and permits?", "answer": "Yes, as a fully licensed QBCC builder (Licence #1510 6828), we manage the entire pool building process from start to finish, including all necessary council approvals and permits." },
+                          { "question": "How long does the build process take?", "answer": "As concrete pool specialists, our typical build timeline is 12-16 weeks from excavation to completion, depending on weather conditions, design complexity, and council approval timeframes." },
+                          { "question": "What areas do you service?", "answer": "We service the entire Sunshine Coast region and surrounding areas including Buddina, Palmview, Caloundra, Noosa, and North Brisbane. Contact us to confirm we cover your specific location." }
+                        ],
+                        "custom_questions": [
+                          { "question": "Are you licensed Paramount in-floor cleaning system dealers?", "answer": "Yes, we're official licensed Paramount dealers. We can install advanced in-floor cleaning systems that automatically circulate and clean your pool, reducing manual maintenance and improving water circulation." },
+                          { "question": "Do you offer payment plans or finance options?", "answer": "Yes, we offer flexible swimming pool payment plans through Handypay, allowing you to get your dream pool started with manageable payments. Small payments for big ideas!" },
+                          { "question": "Are you a family-owned business?", "answer": "Yes, we're a third-generation, locally owned family business based in Palmview. We bring decades of pool building expertise and pride ourselves on quality workmanship and personalized service." }
+                        ]
+                      }
+                    };
+
+                    this.style = {
+                      "assets": {
+                        "logo_url": { "content": "https://images.squarespace-cdn.com/content/v1/5aa8887ab1059897ab1461d1/aedd8fca-df70-4617-8bdb-c4252c2205c2/we+build+pools+with+white+contour%5B648388%5D.png?format=1500w" },
+                        "hero_background_url": { "content": "" },
+                        "recent_projects": [
+                          { "image_url": "https://images.squarespace-cdn.com/content/v1/5aa8887ab1059897ab1461d1/1678445479036-YS2D8HNIM202H4X0L3F1/5.jpg?format=1000w", "description": "" },
+                          { "image_url": "https://images.squarespace-cdn.com/content/v1/5aa8887ab1059897ab1461d1/1678445477189-9BFCLRAH88KHK65APQAA/3.jpg?format=750w", "description": "" },
+                          { "image_url": "https://images.squarespace-cdn.com/content/v1/5aa8887ab1059897ab1461d1/3cdaef84-ee47-4976-9947-f76621e0f384/RAC_7KarlooCourt%2CMountainCreek-3.jpg?format=2500w", "description": "" },
+                          { "image_url": "https://images.squarespace-cdn.com/content/v1/5aa8887ab1059897ab1461d1/1670442674959-1TKUVARROFNW776Q52SL/Immackulate.jpg?format=500w", "description": "" },
+                          { "image_url": "https://images.squarespace-cdn.com/content/v1/5aa8887ab1059897ab1461d1/1670442534136-VKQGJABODFLA12L2VDKX/7+Karloo.jpg?format=750w", "description": "" },
+                          { "image_url": "https://images.squarespace-cdn.com/content/v1/5aa8887ab1059897ab1461d1/1670442708355-F1D770Q9GH6MKJZ8O0LQ/Holly+Roberts+2.jpg?format=750w", "description": "" },
+                          { "image_url": "https://images.squarespace-cdn.com/content/v1/5aa8887ab1059897ab1461d1/1694574134432-DMNG8HYNB06CU9ZO1CBA/thumbnail_RAC_28CarlisleCircuit%2CMountainCreek-14.jpg?format=750w", "description": "" },
+                          { "image_url": "https://images.squarespace-cdn.com/content/v1/5aa8887ab1059897ab1461d1/1694574239325-ERCKV3SEBSJUK2Y3NX7Q/88+Buderim+Ave1.jpg?format=1000w", "description": "" },
+                          { "image_url": "https://images.squarespace-cdn.com/content/v1/5aa8887ab1059897ab1461d1/1694637459920-Q27R2AFQAVFC00I0B2JY/014A8743_1694188493.jpg?format=750w", "description": "" },
+                          { "image_url": "https://images.squarespace-cdn.com/content/v1/5aa8887ab1059897ab1461d1/1739426709480-NNA6EV01RC22CODD7SQ9/web1.jpg?format=750w", "description": "" },
+                          { "image_url": "https://images.squarespace-cdn.com/content/v1/5aa8887ab1059897ab1461d1/1739427030491-VBN9F1Y9458AA3IZOYWO/5.jpg?format=500w", "description": "" },
+                          { "image_url": "https://images.squarespace-cdn.com/content/v1/5aa8887ab1059897ab1461d1/1537257207851-V4E56UKRDSHLB20AAA83/Buddina+6.jpg", "description": "" },
+                          { "image_url": "https://images.squarespace-cdn.com/content/v1/5aa8887ab1059897ab1461d1/1554705313970-WV90ZOWS0E85219341BQ/IMG_8791.JPG", "description": "" },
+                          { "image_url": "https://images.squarespace-cdn.com/content/v1/5aa8887ab1059897ab1461d1/1558503910736-IYIPVDDK1MU29OEAQT7M/10+Pannaroo+Pool+from+courtyard+-+Copy.JPG", "description": "" },
+                          { "image_url": "https://images.squarespace-cdn.com/content/v1/5aa8887ab1059897ab1461d1/1638168758417-AHLN9QCD2LOF5U8BU1X9/20211119_102107.jpg", "description": "" }
+                        ]
+                      }
+                    };
+
+                    document.documentElement.style.setProperty('--primary-color', '#0ea5e9');
+                    document.documentElement.style.setProperty('--secondary-color', '#0369a1');
+                    this.loading = false;
+                },
+
+                scrollToForm() {
+                    document.getElementById('contact-section').scrollIntoView({ behavior: 'smooth' });
+                },
+
+                getCTA(type) {
+                    const strategy = this.content.business_profile.funnel_strategy.content;
+                    if (strategy === 'CUSTOM') {
+                        if (type === 'nav') return 'Book a Free Consult';
+                        return 'Book a Free Design Consultation';
+                    } else {
+                        return 'Book a Free Quote';
+                    }
+                },
+
+                getFormHeadline() {
+                     const strategy = this.content.business_profile.funnel_strategy.content;
+                     return strategy === 'CUSTOM'
+                        ? "Ready to Start Your Pool Project? Get Your Free On-Site Design Consultation"
+                        : "Ready to Start Your Pool Project? Get Your Free On-Site Quote";
+                },
+
+                getAllFaqs() {
+                    if (!this.faq.faq_section) return [];
+                    return [...this.faq.faq_section.universal_questions, ...this.faq.faq_section.custom_questions];
+                },
+
+                renderForm(location) {
+                    const q = this.content.lead_form_strategy.qualifying_questions;
+                    let html = `
+                        <form class="space-y-5" onsubmit="event.preventDefault(); alert('Lead Submitted!');">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div><label class="block text-sm font-bold text-gray-700 mb-1">First Name</label><input type="text" class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-primary outline-none" required></div>
+                                <div><label class="block text-sm font-bold text-gray-700 mb-1">Last Name</label><input type="text" class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-primary outline-none" required></div>
+                            </div>
+                            <div><label class="block text-sm font-bold text-gray-700 mb-1">Email</label><input type="email" class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-primary outline-none" required></div>
+                            <div><label class="block text-sm font-bold text-gray-700 mb-1">Phone</label><input type="tel" class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-primary outline-none" required></div>
+                            <div><label class="block text-sm font-bold text-gray-700 mb-1">Suburb</label><input type="text" class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-primary outline-none" required></div>
+                    `;
+                    if (q.ask_timeline.content) html += `<div><label class="block text-sm font-bold text-gray-700 mb-1">When are you hoping to swim?</label><select class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-primary outline-none bg-white"><option>Immediately</option><option>3-6 Months</option><option>6-12 Months</option></select></div>`;
+                    if (q.ask_access.content) html += `<div><label class="block text-sm font-bold text-gray-700 mb-1">Backyard Access?</label><select class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-primary outline-none bg-white"><option>Easy Access</option><option>Tight Access</option><option>Crane Required</option></select></div>`;
+                    if (q.ask_budget.content) html += `<div><label class="block text-sm font-bold text-gray-700 mb-1">Estimated Budget?</label><select class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-primary outline-none bg-white"><option>$40k - $60k</option><option>$60k - $90k</option><option>$90k - $120k</option><option>$120k+</option></select></div>`;
+
+                    html += `
+                            <button type="submit" class="w-full bg-primary hover:bg-secondary text-white font-bold py-4 rounded-lg shadow-xl hover:shadow-2xl transition-all duration-300 mt-6 text-lg transform hover:-translate-y-1">
+                                ${this.getCTA('main')}
+                            </button>
+                        </form>
+                    `;
+                    return html;
+                }
+            }
+        }
+    </script>
+</body>
+</html>
