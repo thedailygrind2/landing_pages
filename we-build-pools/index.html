@@ -198,7 +198,7 @@
                     <div class="flex text-yellow-400 text-2xl mb-6 tracking-wide">★★★★★</div>
                     <p class="italic text-xl text-gray-100 mb-8 leading-relaxed">"<span x-text="content.social_proof.review_highlight.content"></span>"</p>
                     <div class="border-t border-gray-700 pt-6">
-                        <div class="font-bold text-white text-lg">— <span x-text="content.social_proof.review_highlight.author"></span></div>
+                        <div class="font-bold text-white text-lg"><span x-text="content.social_proof.review_highlight.author"></span></div>
                         <div class="text-sm text-primary font-semibold mt-1 flex items-center gap-2">
                             <span x-text="content.social_proof.google_rating_text.content"></span>
                         </div>
@@ -285,9 +285,10 @@
                                 <span class="text-primary font-bold text-2xl transform transition-transform duration-300"
                                       :class="{'rotate-45': expanded}">+</span>
                             </button>
+                            <!-- UPDATED: Changed x-text to x-html to support bolding of brand names -->
                             <div class="bg-gray-50 px-6 text-gray-600 leading-relaxed accordion-content"
                                  :class="{'accordion-expanded py-4': expanded}">
-                                <p x-text="item.answer"></p>
+                                <p x-html="item.answer"></p>
                             </div>
                         </div>
                     </template>
@@ -323,14 +324,14 @@
                 async init() {
                     // WE BUILD POOLS DATA INJECTION
                     this.content = {
-                      "business_profile": { "company_name": { "content": "We Build Pools" }, "location_focus": { "content": "Sunshine Coast & South East Queensland" }, "funnel_strategy": { "content": "CUSTOM" } },
+                      "business_profile": { "company_name": { "content": "We Build Pools" }, "location_focus": { "content": "Sunshine Coast (Gympie to Caboolture)" }, "funnel_strategy": { "content": "CUSTOM" } },
                       "contact_info": { "phone_display": { "content": "0475 050 110" }, "phone_value": { "content": "0475050110" }, "email": { "content": "leads@webuildpoolsqld.com.au" } },
                       "legal_compliance": { "license_text": { "content": "QBCC Licence #1510 6828" } },
                       "hero_section": { "headline": { "content": "Transform Your Backyard Into a Luxury Oasis" }, "subheadline": { "content": "Third-generation pool builders crafting custom concrete pools across the Sunshine Coast – backed by 20+ years of family expertise" }, "cta_text": { "content": "IGNORE" } },
                       "trust_bar": { "items": [ { "content": "Third-Generation Pool Builders" }, { "content": "20+ Years Experience" }, { "content": "Local Family Business" } ] },
                       "value_proposition_grid": { "intro_text": { "content": "At We Build Pools, we don't just dig holes – we design dream backyards. As a third-generation family business with over 20 years on the Sunshine Coast, we handle every detail from concept to completion." }, "features": [ { "title": "Custom Concrete Specialists", "description": "Every pool is uniquely designed and built to your exact specifications – no templates, no limitations, just your vision brought to life in premium concrete." }, { "title": "Third-Generation Expertise", "description": "With pool building in our DNA for over 20 years, you're working with craftsmen who learned the trade from the ground up – not just contractors." }, { "title": "Start to Finish Service", "description": "From initial design consultation to final handover, we own every step of the process – you deal with one trusted team, not a revolving door of subcontractors." } ] },
                       "pain_point_remover": { "headline": { "content": "We Handle All the Paperwork & Permits" }, "body_copy": { "content": "Building a pool shouldn't feel like navigating a bureaucratic maze. Our experienced team manages all council approvals, engineering certifications, and permit applications on your behalf. With QBCC Licence #1510 6828 and 20+ years navigating Sunshine Coast regulations, we ensure your project stays compliant and stress-free from day one." } },
-                      "social_proof": { "review_highlight": { "content": "The quality of workmanship and attention to detail was exceptional – our pool is the centerpiece of our home.", "author": "Sunshine Coast Homeowner" }, "google_rating_text": { "content": "Trusted by Sunshine Coast Families" } },
+                      "social_proof": { "review_highlight": { "content": "Our pool is beautiful and exactly what we wanted, we're extremely happy with it and it was delivered on time with no issues whatsoever.", "author": "— Brad P, Sunshine Coast Homeowner" }, "google_rating_text": { "content": "Trusted by Sunshine Coast Families" } },
                       "lead_form_strategy": { "form_header": { "content": "Ready to Start Your Pool Project? Get Your Free On-Site Quote" }, "qualifying_questions": { "ask_budget": { "content": true }, "ask_access": { "content": true }, "ask_timeline": { "content": true } } }
                     };
 
@@ -339,11 +340,11 @@
                         "section_title": "Frequently Asked Questions",
                         "universal_questions": [
                           { "question": "Do you handle council approvals and permits?", "answer": "Yes, as a fully licensed QBCC builder (Licence #1510 6828), we manage the entire pool building process from start to finish, including all necessary council approvals and permits." },
-                          { "question": "How long does the build process take?", "answer": "As concrete pool specialists, our typical build timeline is 12-16 weeks from excavation to completion, depending on weather conditions, design complexity, and council approval timeframes." },
-                          { "question": "What areas do you service?", "answer": "We service the entire Sunshine Coast region and surrounding areas including Buddina, Palmview, Caloundra, Noosa, and North Brisbane. Contact us to confirm we cover your specific location." }
+                          { "question": "How long does the build process take?", "answer": "Every custom concrete pool is unique. While specific timelines vary depending on design complexity, weather, and site access, we pride ourselves on efficient project management and will provide you with a clear schedule before excavation begins." },
+                          { "question": "What areas do you service?", "answer": "We service the entire Sunshine Coast region, from Gympie to Caboolture. Contact us to confirm we cover your specific location." }
                         ],
                         "custom_questions": [
-                          { "question": "Are you licensed Paramount in-floor cleaning system dealers?", "answer": "Yes, we're official licensed Paramount dealers. We can install advanced in-floor cleaning systems that automatically circulate and clean your pool, reducing manual maintenance and improving water circulation." },
+                          { "question": "What pool equipment and filtration systems do you use?", "answer": "We partner with <strong>Pool Pro Australia</strong> for premium pumps, filtration, heating, chlorination, and robotic cleaning systems. For lighting, we install <strong>Spa Electrics Quantum WN Series</strong> multi-coloured LED lights as standard—where other builders only offer single-colour options. All equipment is backed by manufacturer warranties and built for Queensland conditions." },
                           { "question": "Do you offer payment plans or finance options?", "answer": "Yes, we offer flexible swimming pool payment plans through Handypay, allowing you to get your dream pool started with manageable payments. Small payments for big ideas!" },
                           { "question": "Are you a family-owned business?", "answer": "Yes, we're a third-generation, locally owned family business based in Palmview. We bring decades of pool building expertise and pride ourselves on quality workmanship and personalized service." }
                         ]
